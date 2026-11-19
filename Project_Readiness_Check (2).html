@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project Readiness Check</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Concept: a calm two-column guide. Left rail tracks steps, center card asks one group of questions at a time, results read like a briefing: verdict first, then what to do. */
+:root{
+  --bg:#f4f6f9; --surface:#ffffff; --surface2:#eef1f6; --ink:#16233b; --ink2:#4a5873; --line:#d9dfe9;
+  --accent:#1f4fd1; --accent-ink:#ffffff; --accent-soft:#e4ebfc;
+  --good:#16794a; --good-soft:#dff3e8; --warn:#8a5a00; --warn-soft:#fdf0cf; --bad:#b3261e; --bad-soft:#fbe3e1; --info-soft:#e9edf5;
+  --shadow:0 1px 2px rgba(22,35,59,.06),0 6px 20px rgba(22,35,59,.06);
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-head:'Space Grotesk','Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1624; --surface:#172033; --surface2:#1d2840; --ink:#e8edf6; --ink2:#a5b1c7; --line:#2b3753;
+  --accent:#6f95ff; --accent-ink:#0d1526; --accent-soft:#1f2c4d;
+  --good:#52d08d; --good-soft:#143627; --warn:#f0bf5a; --warn-soft:#3b2f12; --bad:#ff8f86; --bad-soft:#40201e; --info-soft:#1d2840;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1624; --surface:#172033; --surface2:#1d2840; --ink:#e8edf6; --ink2:#a5b1c7; --line:#2b3753;
+  --accent:#6f95ff; --accent-ink:#0d1526; --accent-soft:#1f2c4d;
+  --good:#52d08d; --good-soft:#143627; --warn:#f0bf5a; --warn-soft:#3b2f12; --bad:#ff8f86; --bad-soft:#40201e; --info-soft:#1d2840;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--font-body);padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-head);margin:0;line-height:1.2;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:1120px;margin:0 auto;padding-block:20px 56px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.brand{font-family:var(--font-head);font-weight:700;font-size:18px;letter-spacing:-.01em}
+.brand small{display:block;font:500 12px var(--font-body);color:var(--ink2);letter-spacing:0}
+.top .sp{flex:1}
+.save{font-size:12px;color:var(--ink2)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible,.opt:focus-visible,.rail button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:5px 10px;font-size:13px}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;align-items:start}
+.rail{position:sticky;top:16px;display:flex;flex-direction:column;gap:2px}
+.rail button{display:flex;gap:10px;align-items:center;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:8px;color:var(--ink2);font-size:14px}
+.rail button:hover{background:var(--surface2)}
+.rail button[aria-current="step"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+.dot{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--ink2);background:var(--surface)}
+.dot.done{background:var(--good);border-color:var(--good);color:#fff}
+.dot.part{border-color:var(--accent);color:var(--accent)}
+.mini{display:none;margin-bottom:12px}
+.bar{height:6px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .25s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:26px}
+.eyebrow{font:600 12px var(--font-body);text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}
+h1.step{font-size:28px;letter-spacing:-.02em;margin-bottom:8px}
+.lead{color:var(--ink2);max-width:62ch;margin-bottom:20px}
+.q{border-top:1px solid var(--line);padding:18px 0}
+.q:first-of-type{border-top:0}
+.q h3{font-size:16px;font-weight:600;font-family:var(--font-body);margin-bottom:4px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tag{font:600 11px var(--font-body);text-transform:uppercase;letter-spacing:.05em;border-radius:99px;padding:2px 8px;background:var(--bad-soft);color:var(--bad)}
+.tag.soft{background:var(--info-soft);color:var(--ink2)}
+.help{font-size:13.5px;color:var(--ink2);margin-bottom:12px;max-width:70ch}
+.help b{color:var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 14px;font-weight:500;font-size:14px;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600;box-shadow:inset 0 0 0 1px var(--accent)}
+.opt.na[aria-checked="true"]{border-color:var(--ink2);background:var(--surface2);box-shadow:none}
+.opt.num{min-width:44px;text-align:center}
+.anch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;font-size:12.5px;color:var(--ink2)}
+.anch div{background:var(--surface2);border-radius:8px;padding:8px 10px}
+.anch b{color:var(--ink);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field.wide{grid-column:1/-1}
+label,.lab{font-weight:600;font-size:13.5px}
+.field small{color:var(--ink2);font-size:12.5px;font-weight:400}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:9px 11px;font:inherit}
+.row2{display:flex;gap:8px;align-items:center}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.nav .cnt{font-size:13px;color:var(--ink2)}
+.sub{margin:22px 0 4px;font:600 12px var(--font-body);text-transform:uppercase;letter-spacing:.08em;color:var(--ink2)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:8px}
+.check input{width:18px;height:18px}
+.note{background:var(--info-soft);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.verdict{border-radius:14px;padding:24px;border:1.5px solid;margin-bottom:18px}
+.verdict.good{background:var(--good-soft);border-color:var(--good)}
+.verdict.warn{background:var(--warn-soft);border-color:var(--warn)}
+.verdict.bad{background:var(--bad-soft);border-color:var(--bad)}
+.verdict .k{font:700 12px var(--font-body);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}
+.verdict.good .k{color:var(--good)}.verdict.warn .k{color:var(--warn)}.verdict.bad .k{color:var(--bad)}
+.verdict h1{font-size:30px;letter-spacing:-.02em;margin-bottom:8px}
+.verdict p{max-width:68ch}
+.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.tile .l{font-size:12px;color:var(--ink2);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.tile .v{font:700 24px var(--font-head);margin:4px 0 2px;letter-spacing:-.02em}
+.tile .s{font-size:12.5px;color:var(--ink2)}
+.pill{display:inline-block;font:600 11.5px var(--font-body);padding:2px 9px;border-radius:99px;margin-top:6px}
+.pill.good{background:var(--good-soft);color:var(--good)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.na{background:var(--surface2);color:var(--ink2)}
+.sec{margin-top:30px}
+.sec>h2{font-size:21px;letter-spacing:-.01em;margin-bottom:4px}
+.sec>.lead{margin-bottom:12px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th{text-align:left;font:600 12px var(--font-body);text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);background:var(--surface2);padding:10px 12px}
+td{padding:11px 12px;border-top:1px solid var(--line);vertical-align:top}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.grp{background:var(--surface2);font-weight:600;font-size:13px}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.item .t{font:600 11.5px var(--font-body);text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.item b{display:block;margin-bottom:2px}
+.item span{color:var(--ink2);font-size:14px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kv{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.kv h3{font-size:14px;font-family:var(--font-body);margin-bottom:8px}
+.kv dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;margin:0;font-size:14px}
+.kv dt{color:var(--ink2)}.kv dd{margin:0;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.gantt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.g-row{display:grid;grid-template-columns:150px minmax(0,1fr) 120px;gap:12px;align-items:center;font-size:13.5px}
+.g-track{position:relative;height:20px;background:var(--surface2);border-radius:6px}
+.g-bar{position:absolute;top:0;bottom:0;border-radius:6px;background:var(--accent);min-width:6px}
+.g-bar.f{background:var(--warn)} .g-bar.p{background:var(--good)}
+.g-row .w{color:var(--ink2);font-variant-numeric:tabular-nums;text-align:right}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.review{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;font-size:13.5px}
+.review div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:4px 0;min-width:0}
+.review span:first-child{color:var(--ink2)}
+textarea.rep{min-height:260px;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13.5px;z-index:20}
+.dlg{background:var(--warn-soft);border:1px solid var(--warn);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fine{font-size:12.5px;color:var(--ink2);margin-top:26px}
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}.mini{display:block}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:620px){
+  .card{padding:18px}
+  .fields,.two,.review,.anch{grid-template-columns:minmax(0,1fr)}
+  .item{grid-template-columns:minmax(0,1fr);gap:4px}
+  .g-row{grid-template-columns:minmax(0,1fr);gap:4px}.g-row .w{text-align:left}
+  h1.step{font-size:23px}.verdict h1{font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.sec .actions,.fine+*,#txtBox,.note .btn{display:none!important}.item,.kv,tr,.gantt{break-inside:avoid}.verdict{-webkit-print-color-adjust:exact;print-color-adjust:exact}.g-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact}.layout{display:block}.rail,.nav,.top .btn,.actions,.mini{display:none!important}.card{box-shadow:none}body{background:#fff}}
+</style>
+
+</head><body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">Project Readiness Check<small>Answer questions about your project. Get a go / no-go and a plan.</small></div>
+    <div class="sp"></div>
+    <span class="save" id="saveNote"></span>
+    <button class="btn sm" id="btnReset" type="button">Start over</button>
+  </header>
+  <div id="resetBox" class="dlg" hidden>
+    <span>Clear every answer and start again? This cannot be undone.</span>
+    <button class="btn sm primary" id="resetYes" type="button">Yes, clear answers</button>
+    <button class="btn sm" id="resetNo" type="button">Keep my answers</button>
+  </div>
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="Steps"></nav>
+    <main>
+      <div class="mini" id="mini"></div>
+      <section class="card" id="stage" aria-live="polite"></section>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* ---------- DATA ---------- */
+const GATE_OPTS=[["met","Yes, in place"],["partial","Partly"],["no","Not yet"],["na","Doesn’t apply"],["unsure","Not sure"]];
+const NEED={decision:"Board decision",contract:"Contract signature","go-live":"Go-live"};
+const GATES=[
+{id:"G01",g:1,crit:1,need:"decision",wk:3,owner:"CEO / COO",q:"Is there one named executive who owns this decision, plus a frontline champion who will own day-to-day use?",help:"<b>Good looks like:</b> one executive owns the decision and outcome; a frontline workflow owner is named for each site or team.",fix:"Name an accountable executive and a frontline workflow owner; write down decision rights."},
+{id:"G02",g:1,crit:1,need:"contract",wk:8,owner:"Compliance lead",q:"Do you have an approved policy for how this kind of technology may be used (human oversight, error reporting, change control, monitoring)?",help:"<b>Good looks like:</b> leadership approved it; it says who may use the tool, for what, how errors are reported and how vendor updates are controlled.",fix:"Adopt a starter governance policy (for AI, a framework such as NIST AI RMF is a good base) and brief leadership."},
+{id:"G03",g:1,crit:1,need:"decision",wk:6,owner:"Operations lead",q:"Have you measured how things perform today and written down what success looks like (metric, target, date)?",help:"<b>Good looks like:</b> at least 4 weeks of baseline data; target and date signed by the sponsor and the operational owner.",fix:"Measure a baseline for 4+ weeks; sponsor and operational owner sign the metric, target and date."},
+{id:"G04",g:2,crit:1,need:"contract",wk:8,owner:"IT + Compliance",q:"Do you have a list of the systems, data flows and workarounds (including unofficial spreadsheets) this technology touches?",help:"<b>Good looks like:</b> a written inventory with owners and data sensitivity, including tools IT may not know about.",fix:"Build the inventory with IT and compliance; ask frontline teams about unofficial tools."},
+{id:"G05",g:2,crit:1,need:"contract",wk:8,owner:"Counsel / Compliance",q:"Is there a signed data-protection agreement with the vendor, with limits on reusing your data or training models on it?",help:"<b>Good looks like:</b> signed; no training or resale of your data without written approval; audit rights; deletion on exit.",fix:"Execute the agreement; bar training and secondary use without written approval; add audit rights and deletion on exit."},
+{id:"G06",g:2,crit:1,need:"contract",wk:10,owner:"Compliance + IT",q:"Is your security and privacy risk assessment current, and does it cover this new data flow, including consent and any sector rules?",help:"<b>Good looks like:</b> assessment updated for this tool; legal review of consent, recording and sensitive-data rules is done.",fix:"Update the risk assessment for this data flow and get legal review of consent and sector rules."},
+{id:"G07",g:2,crit:0,need:"contract",wk:12,owner:"CEO",q:"Does someone have the time to review the vendor and monitor use after launch?",help:"<b>Good looks like:</b> named staff time or contracted support to review the vendor yearly and watch for incidents.",fix:"Assign or contract fractional privacy and security capacity and fund it in the vendor budget."},
+{id:"G10",g:2,crit:1,need:"go-live",wk:6,owner:"Compliance + Operations",q:"Is there a patient notice for consent and opt-out, and does opting out work? (Use customers or users if you do not serve patients.)",help:"<b>Good looks like:</b> approved wording; people can opt out and the opt-out is honored; tested before launch.",fix:"Draft the notice and opt-out workflow, then test it end to end."},
+{id:"G08",g:3,crit:1,need:"contract",wk:12,owner:"CFO / IT manager",q:"Can IT (or a funded partner) deploy and support it without displacing other critical work?",help:"<b>Good looks like:</b> named staff hours or a funded implementation partner; backlog impact understood; one integration at a time.",fix:"Fund an implementation partner or backfill an analyst; triage the backlog; schedule one integration at a time."},
+{id:"G09",g:3,crit:1,need:"contract",wk:8,owner:"IT + Counsel",q:"Have the vendor and your other system vendors confirmed integration scope, cost and support in writing, and does the contract include exit, data return and a price cap?",help:"<b>Good looks like:</b> written confirmation from every vendor involved; contract template with exit, data return and price cap.",fix:"Get written scope, cost and timeline from all vendors; have counsel add exit, data-return and price-cap terms."},
+{id:"G11",g:3,crit:1,need:"contract",wk:8,owner:"Operations lead",q:"Is there a defined process, owner and staff capacity to act on what the technology produces?",help:"<b>Good looks like:</b> a documented process with an owner and staffed capacity; the output triggers a defined action.",fix:"Design and staff the workflow before go-live: owner, hand-offs, capacity."},
+{id:"G12",g:3,crit:1,need:"contract",wk:8,owner:"Quality lead",q:"Is there a plan to check accuracy and quality (sampling, a minimum threshold, escalation, rollback)?",help:"<b>Good looks like:</b> a measurable accuracy floor, audit sample size and frequency, escalation path and rollback plan.",fix:"Write the accuracy floor, audit sampling plan, escalation path and rollback plan."},
+{id:"G13",g:3,crit:0,need:"go-live",wk:6,owner:"Data owner",q:"Is the data the tool needs available and good enough?",help:"<b>Good looks like:</b> data sources identified, spot-checked and accessible to the tool.",fix:"Validate a sample of the input data, fix gaps and confirm access to the feed."},
+{id:"G14",g:1,crit:0,need:"decision",wk:3,owner:"Operations lead",q:"Have you checked whether something you already own or license could solve the problem first?",help:"<b>Good looks like:</b> a written comparison with doing nothing, owned features and cheaper options; the owned option was tested first.",fix:"Compare against owned and licensed capabilities and test those first; they are often the cheapest win."},
+{id:"G15",g:1,crit:1,need:"decision",wk:6,owner:"CFO",q:"Is there a named budget source for the ongoing fees and internal support costs?",help:"<b>Good looks like:</b> a named budget line or offsetting savings, plus a stop-loss trigger.",fix:"Identify the recurring funding source, stage the spend and set a stop-loss trigger."}
+];
+const ORG=[
+{id:"o1",w:.15,q:"How clear are ownership, policy and oversight for technology decisions?",a:["No owner, policy or oversight route.","An owner or policy exists, with gaps.","Named owner, approved policy, regular board reporting."],act:"Name an accountable executive, adopt a starter governance policy and give the board a standing technology report."},
+{id:"o2",w:.10,q:"How well can you measure outcomes today?",a:["No trusted baselines; definitions vary.","Some reports; definitions mostly shared.","Reliable baselines and shared definitions."],act:"Define 3 to 5 success metrics and pull baselines before buying; assign a data owner."},
+{id:"o3",w:.15,q:"Do you have the people and processes to vet vendors and protect data?",a:["Part-time or no dedicated capacity; no current assessment.","Dedicated person; assessment within two years.","A team, current assessments and vendor monitoring."],act:"Add fractional privacy and security capacity (or a vendor-review service) and update the risk assessment."},
+{id:"o4",w:.15,q:"Can IT absorb a new integration?",a:["Tiny team and a long backlog.","Some capacity; some backlog.","Healthy capacity; backlog under control."],act:"Fund an implementation partner or backfill an analyst; triage the backlog; sequence one integration at a time."},
+{id:"o5",w:.10,q:"How mature are your day-to-day processes?",a:["Undocumented; unofficial workarounds.","Mostly documented.","Documented, standardized and owned."],act:"Map the current workflow, surface unofficial workarounds and name a process owner before automating."},
+{id:"o6",w:.15,q:"Do staff have the capacity and appetite for change?",a:["High vacancy or turnover; no slack for training.","Some capacity; mixed track record.","Stable teams, protected training time, strong adoption record."],act:"Protect training time, start with willing pilot users and phase rollout by site."},
+{id:"o7",w:.10,q:"How aligned is leadership on priorities?",a:["Competing priorities; no shared list.","Mostly aligned.","One ranked list, an executive sponsor and one decision forum."],act:"Agree one ranked priority list and a single decision forum; sponsors present, a panel scores."},
+{id:"o8",w:.10,q:"How strong is your financial position for new recurring costs?",a:["Negative margin or thin reserves; no recurring source.","Stable but tight.","Healthy reserves and recurring funding."],act:"Identify a recurring funding source or offsetting savings, stage the spend and set a stop-loss trigger."}
+];
+const TECH=[
+{id:"t1",w:.20,q:"Is there a workflow that will use the output?",a:["None; the output would have no owner.","A workflow exists with gaps.","Owned, documented and staffed."],act:"Design and staff the workflow that acts on the output (owner, hand-offs, capacity) before go-live."},
+{id:"t2",w:.15,q:"Is the data it needs available and good?",a:["Hard to access or unreliable.","Available; quality unverified.","Available, validated and accessible."],act:"Validate a sample of the input data, fix gaps and confirm access to the data feed."},
+{id:"t3",w:.15,q:"Is the integration effort realistic for your IT capacity?",a:["Custom work well beyond capacity.","Doable with vendor help.","Native or certified, light effort."],act:"Get written scope, cost and timeline from every vendor and add IT capacity first."},
+{id:"t4",w:.15,q:"Do frontline users want it, and is the sponsor engaged?",a:["Users unaware or resistant.","Mixed interest.","Users asking for it; sponsor active."],act:"Recruit frontline champions, involve them in design and pick willing pilot users."},
+{id:"t5",w:.20,q:"Do you have a baseline and a success definition?",a:["Nothing measured.","Partial baseline.","Baseline measured; target and date signed."],act:"Measure a baseline for 4+ weeks and sign the metric, target and date."},
+{id:"t6",w:.15,q:"Is there staff time to implement and sustain it?",a:["None identified.","Some time; unconfirmed.","Named staff time for rollout, training and monitoring."],act:"Name staff time for implementation, training and monitoring; backfill if needed."}
+];
+const CRIT=[
+{id:"c1",w:.10,q:"How well does this solve a defined, important problem for you?",a:["Solution in search of a problem.","Problem defined; benefit depends on other changes.","Targets a top priority with a named owner and measurable outcome."],act:"Write a one-page problem statement tied to priorities and test cheaper or owned alternatives first."},
+{id:"c2",w:.10,q:"How strong is the evidence that it works, and can you measure it?",a:["Marketing claims only; no baseline.","Vendor data or a few references; baseline exists.","Independent or peer evidence; baseline verified."],act:"Ask for three peer references with measured results, pin down what “up to X%” means and test against your baseline in a pilot."},
+{id:"c3",w:.10,ko:1,q:"Are there controls that stop errors causing harm (human review, accuracy testing, audit trail)?",a:["Acts on its own; no error reporting.","Human review; vendor-reported accuracy.","Human in the loop, independent testing, audit trail, rollback."],act:"Require human review of outputs, test accuracy on your data, keep an audit trail and agree a rollback plan."},
+{id:"c4",w:.12,ko:1,q:"How well are privacy, security and data rights covered?",a:["No agreement; vendor wants your data for training.","Agreement signed; limits on secondary use; security attestation.","Agreement plus no-training clause, audit rights and deletion on exit."],act:"Execute a data agreement, bar training on your data without approval, obtain a SOC 2 / ISO 27001 report and complete a security review."},
+{id:"c5",w:.10,q:"How well does it fit your systems and IT capacity?",a:["Custom integration; effort undefined.","Standard integration; moderate effort.","Certified or native; vendor implements."],act:"Get written confirmation of the integration method and cost; prefer certified or native connectors."},
+{id:"c6",w:.10,q:"How ready are the workflow, training and adoption plan?",a:["No workflow or owner.","Workflow exists with gaps.","Co-designed with frontline; trained super-users."],act:"Co-design with frontline users, name super-users, schedule training and define the owner and metrics."},
+{id:"c8",w:.08,q:"How solid are the vendor and contract terms?",a:["Unknown vendor; no references or exit terms.","References and standard terms.","Strong references; outcome-linked fees; price cap; exit rights."],act:"Check vendor financials and references; negotiate outcome-linked fees, a price cap and exit and data-return terms."},
+{id:"c9",w:.08,q:"How does it affect access, language, accessibility and fairness?",a:["Likely to disadvantage some groups.","Neutral; some mitigation planned.","Improves access for high-need groups; non-digital alternative."],act:"Test performance by language, group and site; add notice, opt-out and a non-digital alternative."},
+{id:"c10",w:.10,ko:1,q:"How exposed are you to legal or regulatory problems from using it? (Higher means less exposure.)",a:["Material exposure; no mitigation.","Known exposure with credible mitigation.","Minimal exposure; counsel-reviewed; monitored."],act:"Get counsel review for the laws that apply to you and document consent, audit and monitoring plans."}
+];
+const EMB={
+G04:{wk:2,owner:"IT",q:"Have you confirmed what data this EHR feature uses and where it goes (including any third-party model or cloud partner the EHR vendor uses for it)?",help:"<b>Good looks like:</b> the EHR vendor\u2019s written description of data flows for this feature; your inventory updated with a line for it.",fix:"Ask the EHR vendor for a data-flow description for this feature, including subprocessors, and add it to your inventory."},
+G05:{wk:3,owner:"Counsel / Compliance",q:"Does your existing EHR agreement and business associate agreement clearly cover this feature, with no training on or reuse of your data without written approval?",help:"<b>Good looks like:</b> written confirmation (or an amendment) that this feature falls under the current agreement and that your data is not used to train models.",fix:"Get written confirmation or an amendment from the EHR vendor that the feature is covered and bars training or secondary use."},
+G06:{wk:3,owner:"Compliance + IT",q:"Have you reviewed what is new about this feature (new data uses, patient-facing consent, recording or sector rules) and added it to your current risk assessment?",help:"<b>Good looks like:</b> a short addendum to your existing assessment, plus a brief compliance review of consent and any new rules. Not a full re-assessment.",fix:"Add a short addendum to the existing risk assessment and have compliance review consent and sector rules for the new feature."},
+G09:{wk:2,owner:"IT + Counsel",q:"Is the feature\u2019s cost, support and your right to turn it off confirmed in writing by the EHR vendor?",help:"<b>Good looks like:</b> written pricing for the feature, the support model, and confirmation you can disable it and keep your data.",fix:"Get written pricing, support terms and an opt-out or disable right for the feature."}
+};
+const gv=g=>(S.meta.delivery==="embedded"&&EMB[g.id])?Object.assign({},g,EMB[g.id]):g;
+const ROI_W=.12; // criterion 7 weight
+const RISKS=[
+{id:"k1",q:"Nobody clearly owns it, so adoption becomes inconsistent or unsanctioned.",m:"Charter a governance group and name an executive owner before any contract."},
+{id:"k2",q:"Vendor claims are accepted without checking them against your own baseline.",m:"Require baselines and a pilot with pre-agreed metrics; check three peer references."},
+{id:"k3",q:"The vendor uses your data for training or secondary purposes.",m:"Sign a data agreement that bars training and secondary use without written approval."},
+{id:"k4",q:"Unmanaged data flows or unofficial tools create breach exposure.",m:"Inventory data flows and workarounds; retire or secure unofficial tools."},
+{id:"k5",q:"Errors in the output reach customers, patients or records unreviewed.",m:"Require human review, accuracy audits and an incident process."},
+{id:"k6",q:"Legal or regulatory exposure in your sector (consent, billing integrity, nondiscrimination).",m:"Get counsel review and document consent, audit sampling and monitoring."},
+{id:"k7",q:"No owned process or capacity to act on the output, so the benefit never arrives.",m:"Design and staff the workflow first and pilot at one site."},
+{id:"k8",q:"The integration is bigger than IT can handle and crowds out other work.",m:"Fund a partner, sequence one integration at a time and triage the backlog."},
+{id:"k9",q:"Staff do not adopt it, or extra review time cancels the savings.",m:"Choose willing pilot users, protect training time and track real time saved."},
+{id:"k10",q:"It works worse for some groups (language, age, payer, location).",m:"Test performance by group and site, add human override and a non-digital alternative."},
+{id:"k11",q:"Lock-in, price rises or weak exit terms with the vendor.",m:"Negotiate a price cap, termination for convenience and data return."},
+{id:"k12",q:"Ongoing costs strain the budget and reserves.",m:"Name the funding source, stage the spend and set a stop-loss trigger."}
+];
+const RISK_LV=[["0","Not a concern"],["4","Low"],["9","Medium"],["16","High"]];
+const STEPS=[
+{id:"intro",t:"About the project",k:"intro"},
+{id:"g1",t:"Ownership and plan",k:"gates",g:1,lead:"Before anything else, can you say who owns this and what success means?"},
+{id:"g2",t:"Data, privacy and security",k:"gates",g:2,lead:"These are the items most likely to stop a project cold, so answer them with documents in mind, not hopes."},
+{id:"g3",t:"Delivering it",k:"gates",g:3,lead:"Can you actually build, run and check it once the contract is signed?"},
+{id:"org",t:"Organizational readiness",k:"scale",set:"org",list:ORG,lead:"Rate your organization as it is today, independent of this technology. 1 is a foundational gap, 3 is adequate, 5 is advanced."},
+{id:"tech",t:"This project’s readiness",k:"scale",set:"tech",list:TECH,lead:"Now rate how ready this specific project is."},
+{id:"q1",t:"Quality check (1 of 2)",k:"scale",set:"crit",list:CRIT.slice(0,5),lead:"Score what you can prove today, not what the vendor promises. If you cannot show evidence, choose a low number or “Not sure”."},
+{id:"q2",t:"Quality check (2 of 2)",k:"scale",set:"crit",list:CRIT.slice(5),lead:"Same rule: score on evidence in hand."},
+{id:"risk",t:"Risks",k:"risks",lead:"How worried are you about each of these? Tick the box if a mitigation is already planned."},
+{id:"roi",t:"Money check",k:"money",lead:"Rough numbers are fine. The check reduces your benefit estimate for weak evidence and low readiness."},
+{id:"res",t:"Your result",k:"results"}
+];
+/* ---------- STATE ---------- */
+const KEY="project-readiness-check-v1";
+const blank=()=>({meta:{name:"",org:"",vendor:"",problem:"",start:"",delivery:""},gates:{},org:{},tech:{},crit:{},risk:{},mit:{},
+ roi:{skip:false,lic:"",intern:"",one:"",users:"",hours:"",rate:"",conv:"40",other:"",avoid:"",evid:"",r1:"50",r2:"80",r3:"100",esc:"3",hurdle:"25",payback:"30",disc:"8"},step:0});
+let S=blank();
+function load(){try{const t=localStorage.getItem(KEY);if(t){const o=JSON.parse(t);const b=blank();S=Object.assign(b,o);S.meta=Object.assign(b.meta,o.meta||{});S.roi=Object.assign(b.roi,o.roi||{})}}catch(e){}}
+let saveT=0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));note("Saved in this browser")}catch(e){note("Not saved (browser storage unavailable)")}}
+function note(t){const n=document.getElementById("saveNote");if(n)n.textContent=t}
+/* ---------- HELPERS ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num=v=>{const n=parseFloat(String(v).replace(/[$,%\s,]/g,""));return isFinite(n)?n:0};
+const has=v=>v!==""&&v!=null&&isFinite(parseFloat(String(v).replace(/[$,%\s,]/g,"")));
+const money=n=>(n<0?"-":"")+"$"+Math.round(Math.abs(n)).toLocaleString("en-US");
+const pct=(n,d=0)=>(n*100).toFixed(d)+"%";
+const FRAMED=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+function getp(path){const p=path.split(".");let o=S;for(let i=0;i<p.length-1;i++)o=o[p[i]];return [o,p[p.length-1]]}
+/* ---------- LOGIC ---------- */
+function scaleVal(set,id,unsure){const v=S[set][id];if(v==="unsure"||v==null||v==="")return unsure;return +v}
+function evaluate(st,opts){
+  const prev=S;S=st;try{return evaluate0(opts||{})}finally{S=prev}
+}
+function evaluate0(opts){
+  const R={};
+  // gates
+  const G=GATES.map(gv).map(g=>{let a=S.gates[g.id];let status=a==="met"?"met":a==="partial"?"partial":a==="na"?"na":(a==="no"?"no":"unsure");
+    if(opts.clearGates&&status!=="na")status="met";return Object.assign({},g,{status,unanswered:!a})});
+  const app=G.filter(g=>g.status!=="na");
+  const cnt=k=>app.filter(g=>g.status===k).length;
+  const open=app.filter(g=>g.status!=="met");
+  const blockers=G.filter(g=>g.crit&&(g.status==="no"||g.status==="unsure"));
+  const critPartial=G.filter(g=>g.crit&&g.status==="partial");
+  const others=G.filter(g=>!g.crit&&(g.status==="no"||g.status==="unsure"||g.status==="partial"));
+  const critOpen=G.filter(g=>g.crit&&(g.status==="no"||g.status==="unsure"||g.status==="partial"));
+  const wk=critOpen.reduce((m,g)=>Math.max(m,g.wk),0);
+  R.gates={list:G,applicable:app.length,met:cnt("met"),partial:cnt("partial"),no:cnt("no"),unsure:cnt("unsure"),blockers,critPartial,others,weeks:wk,
+    pct:app.length?(cnt("met")+.5*cnt("partial"))/app.length:0,
+    status:blockers.length?"BLOCKED":(open.length?"CONDITIONAL":"CLEARED"),unanswered:G.filter(g=>g.unanswered).length};
+  // readiness
+  const rd=(list,set)=>{let s=0,w=0;const rows=list.map(d=>{const v=scaleVal(set,d.id,2);s+=d.w*v;w+=d.w;return Object.assign({},d,{v,unsure:S[set][d.id]==null||S[set][d.id]==="unsure"})});return {rows,score:w?s/w:0}};
+  const o=rd(ORG,"org"),t=rd(TECH,"tech");
+  const blended=.5*(o.score/5)+.5*(t.score/5);
+  const band=blended*5<2?"Foundational: fix the basics first":blended*5<3?"Developing: pilot only with safeguards":blended*5<4?"Established: ready with controls":"Advanced: ready to scale";
+  R.ready={org:o.score/5,tech:t.score/5,orgRows:o.rows,techRows:t.rows,blended,band,conf:.5+.5*blended};
+  // roi
+  const r=S.roi;const benefit=num(r.users)*num(r.hours)*num(r.rate)*num(r.conv)/100+num(r.other)+num(r.avoid);
+  const lic=num(r.lic),intern=num(r.intern),one=num(r.one),rec=lic+intern,e=num(r.esc)/100;
+  const ramp=[num(r.r1)/100,num(r.r2)/100,num(r.r3)/100];
+  const assessed=!r.skip&&(rec+one)>0&&benefit>0;
+  const evf={vendor:.5,peer:.75,own:.9}[r.evid]||.5;
+  const fs=1+(1+e)+(1+e)*(1+e);
+  const cost3=one+rec*fs;
+  const sc=f=>{const ben3=benefit*(ramp[0]+ramp[1]+ramp[2])*f;return {ben3,roi:cost3>0?(ben3-cost3)/cost3:0,f}};
+  const base=sc(evf*R.ready.conf),opt=sc(1),con=sc(evf*R.ready.conf*.5);
+  const hurdle=num(r.hurdle)/100,maxPay=num(r.payback);
+  const flows=[-one];let rr=rec;for(let i=0;i<3;i++){flows.push(benefit*ramp[i]*base.f-rr);rr=rr*(1+e)}
+  const cum=[];flows.reduce((a,b,i)=>(cum[i]=a+b),0);
+  let pay=null;if(cum[1]>=0)pay=flows[1]>0?12*(-cum[0])/flows[1]:0;else if(cum[2]>=0)pay=12*(1+(-cum[1])/flows[2]);else if(cum[3]>=0)pay=12*(2+(-cum[2])/flows[3]);
+  const d=num(r.disc)/100;const npv=flows.reduce((a,b,i)=>a+b/Math.pow(1+d,i),0);
+  const sumRamp=ramp[0]+ramp[1]+ramp[2];
+  const needed=benefit*sumRamp>0?cost3*(1+hurdle)/(benefit*sumRamp):null;
+  const maxLic=(base.ben3/(1+hurdle)-one-intern*fs)/fs;
+  const roiScore=base.roi<-.25?1:base.roi<0?2:base.roi<hurdle?2.5:base.roi<.75?3.5:base.roi<1.5?4.5:5;
+  const roiScoreMapped=base.roi<-10?0:base.roi<-.25?1:base.roi<0?2:base.roi<.25?2.5:base.roi<.75?3:base.roi<1.5?4:5; // see note below
+  // criterion 7 on a 1-5 scale: <-25%:1, <0:2, <hurdle:2.5(partial), >=hurdle:3, >=75%:4, >=150%:5
+  const c7=base.roi<-.25?1:base.roi<0?2:base.roi<hurdle?2.5:base.roi<.75?3:base.roi<1.5?4:5;
+  R.roi={assessed,benefit,cost3,lic,intern,one,rec,fs,ben3:base.ben3,net3:base.ben3-cost3,roi:base.roi,roiOpt:opt.roi,roiCon:con.roi,flows,pay,npv,hurdle,maxPay,
+    met:assessed&&base.roi>=hurdle&&pay!=null&&pay<=maxPay,needed,assumed:base.f,maxLic,evf,c7,skip:r.skip};
+  // rubric
+  let ws=0,wt=0,kos=[];let unsureC=0;
+  const rows=CRIT.map(c=>{const raw=S.crit[c.id];const un=raw==null||raw==="unsure"||raw==="";if(un)unsureC++;const v=un?1:+raw;ws+=c.w*v;wt+=c.w;if(c.ko&&v<=1)kos.push(c);return Object.assign({},c,{v,un})});
+  if(assessed){ws+=ROI_W*c7;wt+=ROI_W}
+  R.rubric={rows,score:wt?ws/wt:0,pct:wt?ws/wt/5:0,kos,unsure:unsureC,c7:assessed?c7:null};
+  // risks
+  let inh=0,res=0,n=0,high=0,hiList=[];
+  RISKS.forEach(k=>{const v=+(S.risk[k.id]||0);if(v>0){n++;inh+=v;const m=S.mit[k.id];const rs=m?Math.round(v*.4):v;res+=rs;if(v>=15)high++;if(rs>=9)hiList.push(Object.assign({},k,{lvl:v,res:rs,mit:!!m}))}});
+  R.risk={n,high,inh:n?inh/n/25:0,res:n?res/n/25:0,hiList,unanswered:RISKS.filter(k=>S.risk[k.id]==null||S.risk[k.id]==="").length,resHigh:hiList.filter(x=>x.res>=15).length};
+  // verdict
+  const minP=.5,proP=.7;let v;
+  const B=R.gates.blockers.length;
+  if(B)v=["notyet","bad","Not yet: complete the prerequisites first",`${B} must-have prerequisite${B>1?"s are":" is"} missing or unconfirmed. Contracting now would put the project at risk, whatever else looks good.`];
+  else if(R.rubric.pct<minP)v=["defer","bad","Not yet: strengthen the project first","The prerequisites are covered, but the quality check scores too low to justify moving ahead. Work through the improvement list below and re-check."];
+  else if(!assessed)v=["needsroi","warn","Almost: build the business case","Everything else is in reasonable shape, but there is no usable cost and benefit estimate. Add one before you decide."];
+  else if(!R.roi.met)v=["rescope","warn","Re-scope or renegotiate: the numbers don’t work yet",`At the quoted terms the three-year return is ${pct(R.roi.roi)} against a hurdle of ${pct(hurdle)}${R.roi.pay==null?" and payback is longer than 36 months":""}. The plan below shows what would make it work.`];
+  else if(R.rubric.kos.length)v=["hold","warn","Hold: fix the red-flag areas first",`${R.rubric.kos.length} critical area${R.rubric.kos.length>1?"s score":" scores"} at the lowest level. These must be remediated before contracting.`];
+  else if(R.rubric.pct<proP)v=["pilot","warn","Pilot only: prove it small before scaling","The project can start, but only as a small, time-boxed pilot with a clear stop rule. Scale only if it hits its targets."];
+  else if(R.gates.status==="CONDITIONAL"||R.risk.resHigh>0)v=["conditions","good","Proceed with conditions","The project is in good shape. Close the remaining open items in parallel and keep a pilot checkpoint at day 90."];
+  else v=["proceed","good","Proceed","The prerequisites are met, the quality check is strong and the numbers clear your hurdle. Move to contract with a pilot checkpoint at day 90."];
+  R.verdict={code:v[0],tone:v[1],label:v[2],text:v[3]};
+  R.assessed=assessed;
+  return R;
+}
+function answeredInfo(){
+  let tot=0,got=0,uns=0;
+  GATES.forEach(g=>{tot++;const a=S.gates[g.id];if(a&&a!=="unsure")got++;else uns++});
+  ORG.concat(TECH).forEach(d=>{tot++;const a=S[ORG.includes(d)?"org":"tech"][d.id];if(a&&a!=="unsure")got++;else uns++});
+  CRIT.forEach(d=>{tot++;const a=S.crit[d.id];if(a&&a!=="unsure")got++;else uns++});
+  RISKS.forEach(d=>{tot++;if(S.risk[d.id]!=null&&S.risk[d.id]!=="")got++;else uns++});
+  return {tot,got,uns};
+}
+function stepProgress(i){
+  const s=STEPS[i];
+  if(s.k==="intro")return [S.meta.name?1:0,1];
+  if(s.k==="gates"){const l=GATES.filter(g=>g.g===s.g);return [l.filter(g=>S.gates[g.id]).length,l.length]}
+  if(s.k==="scale")return [s.list.filter(d=>S[s.set][d.id]!=null&&S[s.set][d.id]!=="").length,s.list.length];
+  if(s.k==="risks")return [RISKS.filter(k=>S.risk[k.id]!=null&&S.risk[k.id]!=="").length,RISKS.length];
+  if(s.k==="money")return [S.roi.skip||(has(S.roi.lic)||has(S.roi.one))?1:0,1];
+  return [0,0];
+}
+/* ---------- PLAN (recommendations) ---------- */
+function plan(R){
+  const P={first:[],improve:[],approach:[],top3:[]};
+  const order={decision:0,contract:1,"go-live":2};
+  const mk=(g,tag)=>({id:g.id,tag,what:g.q.replace(/\?$/,""),fix:g.fix,owner:g.owner,wk:g.wk,need:NEED[g.need],unconfirmed:g.status==="unsure",ord:order[g.need]});
+  R.gates.blockers.forEach(g=>P.first.push(mk(g,"Blocking")));
+  R.gates.critPartial.forEach(g=>P.first.push(mk(g,"Finish")));
+  R.gates.others.forEach(g=>P.first.push(mk(g,"Recommended")));
+  const rank={Blocking:0,Finish:1,Recommended:2};
+  P.first.sort((a,b)=>rank[a.tag]-rank[b.tag]||a.ord-b.ord||a.wk-b.wk);
+  // improvements
+  R.rubric.kos.forEach(c=>P.improve.push({tag:"Red flag",t:c.q.replace(/\?.*$/,"?"),a:c.act,p:0}));
+  R.rubric.rows.filter(c=>c.v<=2&&!(c.ko&&c.v<=1)).sort((a,b)=>b.w-a.w).forEach(c=>P.improve.push({tag:"Quality",t:c.q,a:c.act,p:1}));
+  R.ready.orgRows.filter(d=>d.v<=2).sort((a,b)=>b.w-a.w).forEach(d=>P.improve.push({tag:"Readiness",t:d.q,a:d.act,p:2}));
+  R.ready.techRows.filter(d=>d.v<=2).sort((a,b)=>b.w-a.w).forEach(d=>P.improve.push({tag:"Readiness",t:d.q,a:d.act,p:2}));
+  R.risk.hiList.sort((a,b)=>b.res-a.res).forEach(k=>P.improve.push({tag:"Risk",t:k.q,a:k.m,p:3}));
+  if(R.assessed&&!R.roi.met){
+    if(R.roi.needed!=null&&R.roi.needed<=1)P.improve.push({tag:"Money",t:"Return is below your hurdle at the quoted terms.",a:`It works only if about ${pct(R.roi.needed)} of the modeled benefit is realized (the check assumes ${pct(R.roi.assumed)}). Agree outcome-linked fees, stage payments to pilot results and build an adoption plan.`,p:4});
+    else P.improve.push({tag:"Money",t:"Return stays below your hurdle even if every modeled benefit arrives.",a:`Ask for a license price at or below ${money(Math.max(0,R.roi.maxLic))} a year, shrink the scope to the users and sites with the best payoff, or drop it.`,p:4});
+    if(R.roi.evf<=.5)P.improve.push({tag:"Money",t:"The benefit estimate rests on vendor claims.",a:"Get measured results from three peer organizations or run a short pilot. Better evidence both raises the credit given and lowers the risk.",p:4});
+  }
+  if(!R.assessed)P.improve.push({tag:"Money",t:"There is no usable cost and benefit estimate.",a:"Collect the quote, internal support cost and one-time cost; estimate time saved, revenue or cost avoided from your baseline; then re-run the Money check.",p:4});
+  P.improve.sort((a,b)=>a.p-b.p);P.improve=P.improve.slice(0,12);
+  // approach
+  const code=R.verdict.code;
+  if(code!=="proceed")P.approach.push("Test what you already own first. Unused licensed features are often the cheapest win and build the habits this project will need.");
+  if(R.gates.blockers.length||R.ready.blended<.5)P.approach.push("Run foundation work in parallel: name the owner, measure the baseline, inventory data flows and open the data-agreement and security review now. Each takes weeks and they do not depend on each other.");
+  if(R.ready.orgRows.concat(R.ready.techRows).some(d=>d.id==="o4"&&d.v<=2||d.id==="t3"&&d.v<=2))P.approach.push("Limit IT load: one integration at a time, with a funded implementation partner or backfill, so this does not crowd out the existing backlog.");
+  P.approach.push("Fund in stages, not the full contract: a small pilot (one site or team, 6 to 8 willing users, 8 to 12 weeks) with a day-90 checkpoint and a written stop rule.");
+  P.approach.push("Write the success metric, target and date before signing, and tie vendor fees to it where you can. Treat “up to” claims as ceilings.");
+  if(R.risk.n&&R.risk.resHigh+R.risk.hiList.length>0)P.approach.push("Assign an owner and a date to every high risk; review them at each stage gate.");
+  P.approach.push("Re-run this check after the prerequisites and again after the pilot, using real results in place of estimates.");
+  // top 3
+  const t=[];
+  P.first.filter(x=>x.tag==="Blocking").slice(0,3).forEach(x=>t.push(x.fix));
+  if(t.length<3)P.improve.slice(0,3-t.length).forEach(x=>t.push(x.a));
+  if(t.length<3)t.push("Set a day-90 pilot checkpoint with clear targets and a stop rule.");
+  P.top3=t.slice(0,3);
+  return P;
+}
+function roadmap(R){
+  const F=R.gates.weeks;const rows=[];let c=0;
+  if(F>0){rows.push({n:"Foundation: prerequisites",a:0,b:F,k:"f"});c=F}
+  rows.push({n:"Decision and approval",a:c,b:c+1,k:"",pt:1});c+=1;
+  rows.push({n:"Contract and agreements",a:c,b:c+8,k:""});c+=8;
+  rows.push({n:"Build and integrate",a:c,b:c+8,k:""});c+=8;
+  const go=c;rows.push({n:"Pilot",a:c,b:c+12,k:"p"});c+=12;
+  rows.push({n:"Scale-up",a:c,b:c+12,k:"p"});c+=12;
+  return {rows,total:c,go};
+}
+function dateAt(w){if(!S.meta.start)return "";const d=new Date(S.meta.start+"T00:00:00");if(isNaN(d))return "";d.setDate(d.getDate()+w*7);return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}
+/* ---------- RENDER ---------- */
+function opt(path,val,label,sel,cls){return `<button type="button" role="radio" class="opt ${cls||""}" data-act="set" data-path="${path}" data-val="${val}" aria-checked="${sel}">${label}</button>`}
+function renderRail(){
+  $("#rail").innerHTML=STEPS.map((s,i)=>{const [a,b]=stepProgress(i);const done=b>0&&a>=b;
+    return `<button type="button" data-act="go" data-i="${i}" ${i===S.step?'aria-current="step"':""}><span class="dot ${done?"done":a>0?"part":""}">${done?"✓":i+1}</span><span>${esc(s.t)}</span></button>`}).join("");
+  const tot=STEPS.length-1;const p=Math.min(1,S.step/tot);
+  $("#mini").innerHTML=`<div class="lab" style="margin-bottom:6px">Step ${S.step+1} of ${STEPS.length}: ${esc(STEPS[S.step].t)}</div><div class="bar"><i style="width:${p*100}%"></i></div>`;
+}
+function qGate(g){const a=S.gates[g.id];
+  return `<div class="q"><h3>${esc(g.q)} ${g.crit?'<span class="tag">Must-have</span>':'<span class="tag soft">Recommended</span>'}</h3><p class="help">${g.help} <span>Needed before: ${NEED[g.need]}.</span></p>
+  <div class="opts" role="radiogroup" aria-label="${esc(g.q)}">${GATE_OPTS.map(o=>opt("gates."+g.id,o[0],o[1],a===o[0],o[0]==="na"||o[0]==="unsure"?"na":"")).join("")}</div></div>`}
+function qScale(set,d){const a=S[set][d.id];
+  return `<div class="q"><h3>${esc(d.q)}</h3><div class="opts" role="radiogroup" aria-label="${esc(d.q)}">${[1,2,3,4,5].map(n=>opt(set+"."+d.id,n,n,String(a)===String(n),"num")).join("")}${opt(set+"."+d.id,"unsure","Not sure",a==="unsure","na")}</div>
+  <div class="anch"><div><b>1</b>${esc(d.a[0])}</div><div><b>3</b>${esc(d.a[1])}</div><div><b>5</b>${esc(d.a[2])}</div></div></div>`}
+function qRisk(k){const a=S.risk[k.id];const m=S.mit[k.id];
+  return `<div class="q"><h3>${esc(k.q)}</h3><div class="opts" role="radiogroup" aria-label="${esc(k.q)}">${RISK_LV.map(o=>opt("risk."+k.id,o[0],o[1],String(a)===o[0],o[0]==="0"?"na":"")).join("")}</div>
+  <label class="check"><input type="checkbox" data-act="chk" data-path="mit.${k.id}" ${m?"checked":""} id="mit-${k.id}"> A mitigation is already planned</label></div>`}
+function fld(label,path,type,opts){opts=opts||{};const [o,k]=getp(path);const v=o[k]==null?"":o[k];
+  return `<div class="field ${opts.wide?"wide":""}"><label for="${path}">${label}</label><input id="${path}" type="${type||"text"}" ${type==="number"?'inputmode="decimal" step="any" min="0"':""} data-act="inp" data-path="${path}" value="${esc(v)}" placeholder="${esc(opts.ph||"")}" autocomplete="off">${opts.h?`<small>${opts.h}</small>`:""}</div>`}
+function renderStep(){
+  const s=STEPS[S.step];let h="";
+  const eyebrow=`<div class="eyebrow">${s.k==="results"?"Result":`Step ${S.step+1} of ${STEPS.length}`}</div>`;
+  if(s.k==="intro"){
+    h=`${eyebrow}<h1 class="step">Tell us about the project</h1><p class="lead">This guide asks about 55 short questions about one technology project, scores your answers the way a review panel would and tells you whether to go ahead. If not yet, it lists exactly what to complete first and what else would help. About 15 minutes. Answers stay in your browser.</p>
+    <div class="fields">${fld("Technology or project name","meta.name","text",{ph:"e.g., Ambient note-taking assistant",wide:1})}${fld("Vendor or supplier","meta.vendor","text",{ph:"or “In-house”"})}${fld("Your organization","meta.org","text")}${fld("What problem is it meant to solve?","meta.problem","text",{wide:1,ph:"One sentence"})}<div class="field wide"><span class="lab">How is it delivered?</span><div class="opts" role="radiogroup" aria-label="Delivery">${opt("meta.delivery","separate","A new, separate vendor",S.meta.delivery==="separate")}${opt("meta.delivery","embedded","Built into our EHR or a system we already license",S.meta.delivery==="embedded")}</div><small>If it comes from your EHR vendor, some questions are shortened. The checks still apply, but the work is lighter.</small></div>${fld("Planned start date (optional)","meta.start","date",{h:"Shows calendar dates on the roadmap."})}</div>
+    <div class="note" style="margin-top:20px"><b>How to answer.</b> Answer on what you can show today (a document, a measurement, a working control), not on what you expect. If you do not know, choose “Not sure”. It is treated as a gap, which is the honest default.</div>`;
+  } else if(s.k==="gates"){
+    h=`${eyebrow}<h1 class="step">${esc(s.t)}</h1><p class="lead">${esc(s.lead)}</p>${s.g===2&&S.meta.delivery==="embedded"?`<div class="note"><b>Built into your EHR or existing system.</b> Four questions below are shortened because your current vendor agreement may already cover part of this. They are still required: confirm it in writing rather than assume it.</div>`:""}${GATES.filter(g=>g.g===s.g).map(g=>qGate(gv(g))).join("")}`;
+  } else if(s.k==="scale"){
+    h=`${eyebrow}<h1 class="step">${esc(s.t)}</h1><p class="lead">${esc(s.lead)}</p>${s.list.map(d=>qScale(s.set,d)).join("")}`;
+  } else if(s.k==="risks"){
+    h=`${eyebrow}<h1 class="step">${esc(s.t)}</h1><p class="lead">${esc(s.lead)}</p>${RISKS.map(qRisk).join("")}`;
+  } else if(s.k==="money"){
+    const r=S.roi;
+    h=`${eyebrow}<h1 class="step">Money check</h1><p class="lead">${esc(s.lead)}</p>
+    <label class="check" style="margin:0 0 14px"><input type="checkbox" data-act="chk" data-path="roi.skip" id="roi-skip" ${r.skip?"checked":""}> I don’t have numbers yet (skip this step; the result will say to build a business case)</label>
+    <div id="moneyBody" ${r.skip?"hidden":""}>
+    <div class="sub">Costs</div><div class="fields">${fld("Annual license or subscription ($)","roi.lic","number",{ph:"84000",h:"From the vendor quote."})}${fld("Annual internal cost to run it ($)","roi.intern","number",{h:"Staff time to support and monitor it."})}${fld("One-time implementation cost ($)","roi.one","number",{h:"Setup, integration, training, consultants."})}</div>
+    <div class="sub">Benefit: time saved</div><div class="fields">${fld("People who will use it","roi.users","number")}${fld("Hours saved per person per year","roi.hours","number",{h:"From pilot or peer data, not the headline claim."})}${fld("Loaded cost per hour ($)","roi.rate","number",{h:"Salary plus benefits and overhead."})}${fld("Share of saved time that turns into real value (%)","roi.conv","number",{h:"100 only if it becomes billable work or avoided overtime; 20 to 50 is typical."})}</div>
+    <div class="sub">Benefit: other</div><div class="fields">${fld("Extra revenue per year ($)","roi.other","number",{h:"Net revenue or margin you can actually collect."})}${fld("Costs avoided per year ($)","roi.avoid","number",{h:"Overtime, rework, penalties, subscriptions retired."})}</div>
+    <div class="sub">How solid is that benefit estimate?</div>
+    <div class="opts" role="radiogroup" aria-label="Evidence">${[["vendor","Mostly the vendor’s claim"],["peer","Peer references or another site’s pilot"],["own","Our own baseline data"]].map(o=>opt("roi.evid",o[0],o[1],r.evid===o[0])).join("")}</div>
+    <details style="margin-top:18px"><summary class="lab" style="cursor:pointer">Decision settings (defaults you can change)</summary><div class="fields" style="margin-top:12px">
+    ${fld("Share of full benefit reached in Year 1 (%)","roi.r1","number")}${fld("Year 2 (%)","roi.r2","number")}${fld("Year 3 (%)","roi.r3","number")}${fld("Yearly price increase (%)","roi.esc","number")}${fld("Minimum 3-year return you require (%)","roi.hurdle","number")}${fld("Maximum payback (months from go-live)","roi.payback","number")}${fld("Discount rate (%)","roi.disc","number")}</div></details></div>`;
+  } else if(s.k==="results"){h=renderResults();}
+  $("#stage").innerHTML=h;
+  if(s.k!=="results"){
+    const [a,b]=stepProgress(S.step);
+    $("#stage").insertAdjacentHTML("beforeend",`<div class="nav"><button class="btn" type="button" data-act="back" ${S.step===0?"disabled style='opacity:.4'":""}>Back</button><span class="cnt" id="cnt">${b>1?`${a} of ${b} answered`:""}</span><button class="btn primary" type="button" data-act="next">${S.step===STEPS.length-2?"See my result":"Next"}</button></div>`);
+  }
+  renderRail();
+}
+/* ----- results ----- */
+function tile(l,v,s,pill,tone){return `<div class="tile"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div><span class="pill ${tone}">${pill}</span></div>`}
+function reportText(R,P,RM){
+  const L=[];const nm=S.meta.name||"Untitled project";
+  L.push(`PROJECT READINESS CHECK: ${nm}`);if(S.meta.vendor)L.push(`Vendor: ${S.meta.vendor}`);if(S.meta.org)L.push(`Organization: ${S.meta.org}`);if(S.meta.problem)L.push(`Problem: ${S.meta.problem}`);
+  L.push("",`RESULT: ${R.verdict.label}`,R.verdict.text,"");
+  L.push(`Prerequisites met: ${R.gates.met} of ${R.gates.applicable} (${R.gates.status})`,`Readiness: ${pct(R.ready.blended)} (${R.ready.band})`,`Quality score: ${pct(R.rubric.pct)}`,`Risk exposure: ${pct(R.risk.inh)} before mitigation, ${pct(R.risk.res)} after`);
+  L.push(R.assessed?`Three-year return: ${pct(R.roi.roi)}; net ${money(R.roi.net3)}; payback ${R.roi.pay==null?"over 36 months":R.roi.pay.toFixed(0)+" months"}`:"Money: no estimate yet","");
+  if(P.first.length){L.push("DO THESE FIRST");P.first.forEach((x,i)=>L.push(`${i+1}. [${x.tag}] ${x.what} -> ${x.fix} (Owner: ${x.owner}; about ${x.wk} weeks; needed before ${x.need})`));L.push("")}
+  if(P.improve.length){L.push("TO IMPROVE YOUR ODDS");P.improve.forEach((x,i)=>L.push(`${i+1}. [${x.tag}] ${x.a}`));L.push("")}
+  L.push("HOW TO MOVE FORWARD");P.approach.forEach(x=>L.push("- "+x));L.push("");
+  L.push("ROADMAP (weeks from start)");RM.rows.forEach(r=>L.push(`- ${r.n}: week ${r.a} to ${r.b}${S.meta.start?` (${dateAt(r.a)} to ${dateAt(r.b)})`:""}`));
+  L.push("",`Pilot go-live: week ${RM.go}${S.meta.start?" ("+dateAt(RM.go)+")":""}`);
+  return L.join("\n");
+}
+function renderResults(){
+  const R=evaluate(S),P=plan(R),RM=roadmap(R),AI=answeredInfo();
+  window.__last={R,P,RM};
+  const g=R.gates;
+  const gp=g.status==="CLEARED"?["Cleared","good"]:g.status==="CONDITIONAL"?["Conditional","warn"]:["Blocked","bad"];
+  const rp=R.ready.blended>=.6?"good":R.ready.blended>=.4?"warn":"bad";
+  const qp=R.rubric.kos.length?["Red flag","bad"]:R.rubric.pct>=.7?["Strong","good"]:R.rubric.pct>=.5?["Pilot level","warn"]:["Weak","bad"];
+  const kp=R.risk.n===0?["Not rated","na"]:R.risk.res>=.4?["High","bad"]:R.risk.res>=.2?["Moderate","warn"]:["Contained","good"];
+  const mp=!R.assessed?["Not assessed","na"]:R.roi.met?["Meets hurdle","good"]:["Below hurdle","bad"];
+  let h=`<div class="eyebrow">Result</div>`;
+  if(AI.uns>0)h+=`<div class="note"><b>${AI.uns} of ${AI.tot} questions are unanswered or marked “Not sure”.</b> They are counted as gaps. <button class="btn sm" type="button" data-act="go" data-i="1">Review answers</button></div>`;
+  h+=`<div class="verdict ${R.verdict.tone}"><div class="k">${esc(S.meta.name||"Your project")}</div><h1>${esc(R.verdict.label)}</h1><p>${esc(R.verdict.text)}</p></div>`;
+  h+=`<div class="tiles">
+   ${tile("Prerequisites",`${g.met}/${g.applicable}`,`${g.blockers.length} must-have missing`,gp[0],gp[1])}
+   ${tile("Readiness",pct(R.ready.blended),esc(R.ready.band.split(":")[0]),rp==="good"?"Ready":rp==="warn"?"Partly ready":"Not ready",rp)}
+   ${tile("Quality score",pct(R.rubric.pct),`${R.rubric.kos.length} red flag${R.rubric.kos.length===1?"":"s"}`,qp[0],qp[1])}
+   ${tile("Risk",pct(R.risk.res),`after mitigation (${R.risk.high} high)`,kp[0],kp[1])}
+   ${tile("Money",R.assessed?pct(R.roi.roi):"n/a","3-year return",mp[0],mp[1])}</div>`;
+  // first
+  h+=`<section class="sec"><h2>${g.blockers.length?"Do these first: prerequisites":"Open prerequisites"}</h2><p class="lead">${g.blockers.length?`Must-haves must be in place before you sign. Working in parallel, the longest takes about <b>${g.weeks} weeks</b>, so the earliest realistic contract date is about ${g.weeks} weeks from now.`:P.first.length?"No blockers. These items still need to be finished.":"Every prerequisite you answered is in place."}</p>`;
+  if(P.first.length){let last="";h+=`<div class="tbl"><table><thead><tr><th>Prerequisite</th><th>What to do</th><th>Owner</th><th>Weeks</th><th>Needed before</th></tr></thead><tbody>`;
+    P.first.forEach(x=>{if(x.tag!==last){last=x.tag;h+=`<tr><td class="grp" colspan="5">${x.tag==="Blocking"?"Must-have, missing or unconfirmed":x.tag==="Finish"?"Must-have, partly done":"Recommended"}</td></tr>`}
+      h+=`<tr><td>${esc(x.what)}${x.unconfirmed?' <span class="tag soft">unconfirmed</span>':""}</td><td>${esc(x.fix)}</td><td>${esc(x.owner)}</td><td class="n">~${x.wk}</td><td>${esc(x.need)}</td></tr>`});
+    h+=`</tbody></table></div>`}
+  h+=`</section>`;
+  // projection
+  if(R.verdict.code==="notyet"){const R2=evaluate(S,{clearGates:true});
+    h+=`<section class="sec"><h2>If you complete the prerequisites</h2><div class="note">With every prerequisite in place and nothing else changed, your result would be <b>${esc(R2.verdict.label)}</b>.${R2.verdict.code==="notyet"?"":" "+esc(R2.verdict.text)}</div></section>`}
+  // improve
+  h+=`<section class="sec"><h2>What will help you move forward</h2><p class="lead">Top items, ordered by impact. Fixing these raises the quality score, lifts your readiness and lowers risk.</p>`;
+  if(P.improve.length)h+=`<div class="list">${P.improve.map(x=>`<div class="item"><div class="t">${x.tag}</div><div><b>${esc(x.t)}</b><span>${esc(x.a)}</span></div></div>`).join("")}</div>`;
+  else h+=`<div class="note">No weak areas found in the answers you gave.</div>`;
+  h+=`</section>`;
+  // money
+  h+=`<section class="sec"><h2>Money check</h2>`;
+  if(!R.assessed)h+=`<div class="note">${R.roi.skip?"You chose to skip this step.":"There is not enough cost and benefit information."} Add it on the Money check step to see return, payback and what price or benefit you need.</div><div class="actions"><button class="btn" type="button" data-act="go" data-i="9">Add numbers</button></div>`;
+  else{const m=R.roi;h+=`<div class="two"><div class="kv"><h3>Three-year view (base case)</h3><dl><dt>Total cost</dt><dd>${money(m.cost3)}</dd><dt>Risk-adjusted benefit</dt><dd>${money(m.ben3)}</dd><dt>Net benefit</dt><dd>${money(m.net3)}</dd><dt>Return on cost</dt><dd>${pct(m.roi)}</dd><dt>Payback after go-live</dt><dd>${m.pay==null?"over 36 months":m.pay.toFixed(0)+" months"}</dd><dt>Net present value</dt><dd>${money(m.npv)}</dd></dl></div>
+    <div class="kv"><h3>What it takes to meet your hurdle (${pct(m.hurdle)})</h3><dl><dt>Return if vendor claim is fully true</dt><dd>${pct(m.roiOpt)}</dd><dt>Return in the downside case</dt><dd>${pct(m.roiCon)}</dd><dt>Benefit you must realize</dt><dd>${m.needed==null?"n/a":pct(m.needed)}</dd><dt>Benefit the check credits</dt><dd>${pct(m.assumed)}</dd><dt>Highest license that meets the hurdle</dt><dd>${money(Math.max(0,m.maxLic))}/yr</dd><dt>License as quoted</dt><dd>${money(m.lic)}/yr</dd></dl></div></div>
+    <p class="help" style="margin-top:10px">Base case = your benefit estimate x evidence credit (${pct(m.evf)}) x readiness credit. The vendor-claim case counts 100% of your estimate; the downside case counts half the base.</p>`}
+  h+=`</section>`;
+  // approach
+  h+=`<section class="sec"><h2>How to move forward</h2><div class="list">${P.approach.map(x=>`<div class="item"><div class="t">Approach</div><div><span style="color:var(--ink)">${esc(x)}</span></div></div>`).join("")}</div></section>`;
+  // top 3
+  h+=`<section class="sec"><h2>Your next 30 days</h2><div class="list">${P.top3.map((x,i)=>`<div class="item"><div class="t">Action ${i+1}</div><div><span style="color:var(--ink)">${esc(x)}</span></div></div>`).join("")}</div></section>`;
+  // roadmap
+  h+=`<section class="sec"><h2>Suggested roadmap</h2><p class="lead">Pilot go-live in about <b>week ${RM.go}</b>${S.meta.start?` (${dateAt(RM.go)})`:""}${R.verdict.code==="proceed"||R.verdict.code==="conditions"?"":", assuming the prerequisites are completed on the schedule above"}. Durations are planning defaults.</p><div class="gantt">`;
+  RM.rows.forEach(r=>{const l=r.a/RM.total*100,w=Math.max((r.b-r.a)/RM.total*100,1.2);
+    h+=`<div class="g-row"><span>${esc(r.n)}</span><div class="g-track"><div class="g-bar ${r.k}" style="left:${l}%;width:${w}%"></div></div><span class="w">wk ${r.a}–${r.b}${S.meta.start?`<br><small>${dateAt(r.a)}</small>`:""}</span></div>`});
+  h+=`</div></section>`;
+  // review
+  h+=`<section class="sec"><h2>Your answers</h2><p class="lead">Change any answer and the result updates.</p><div class="actions" style="margin:0 0 10px">${STEPS.slice(0,-1).map((s,i)=>`<button class="btn sm" type="button" data-act="go" data-i="${i}">${esc(s.t)}</button>`).join("")}</div></section>`;
+  const txt=reportText(R,P,RM);
+  h+=`<div class="actions"><button class="btn primary" type="button" data-act="copy">Copy report</button><button class="btn" type="button" data-act="showtxt">Show report text</button>${FRAMED?"":'<button class="btn" type="button" data-act="print">Print / save as PDF</button><button class="btn" type="button" data-act="dl">Download report</button><button class="btn" type="button" data-act="dlj">Download answers</button>'}<button class="btn" type="button" data-act="back">Back to questions</button></div><div id="txtBox" hidden style="margin-top:12px"><textarea class="rep" id="repTxt" readonly>${esc(txt)}</textarea></div>
+  <p class="fine">Decision support only. Scores depend on the answers given, defaults are starting points and regulatory items should be confirmed with counsel for your sector and jurisdiction. Answers are stored only in this browser.</p>`;
+  window.__txt=txt;return h;
+}
+/* ---------- EVENTS ---------- */
+function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2200)}
+function go(i){S.step=Math.max(0,Math.min(STEPS.length-1,i));save();renderStep();window.scrollTo({top:0,behavior:"auto"})}
+function refreshMeta(){renderRail();const [a,b]=stepProgress(S.step);const c=$("#cnt");if(c)c.textContent=b>1?`${a} of ${b} answered`:""}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-act]");if(!t)return;const act=t.dataset.act;
+  if(act==="set"){const [o,k]=getp(t.dataset.path);o[k]=t.dataset.val;t.parentElement.querySelectorAll(".opt").forEach(b=>b.setAttribute("aria-checked",b===t?"true":"false"));save();refreshMeta()}
+  else if(act==="go")go(+t.dataset.i);
+  else if(act==="next")go(S.step+1);
+  else if(act==="back")go(S.step===STEPS.length-1?STEPS.length-2:S.step-1);
+  else if(act==="copy"){const txt=window.__txt||"";const done=()=>toast("Report copied");const fb=()=>{$("#txtBox").hidden=false;const ta=$("#repTxt");ta.focus();ta.select();toast("Press Ctrl/Cmd+C to copy")};
+    try{navigator.clipboard.writeText(txt).then(done,fb)}catch(er){fb()}}
+  else if(act==="print"){window.print()}
+  else if(act==="showtxt"){const b=$("#txtBox");b.hidden=!b.hidden}
+  else if(act==="dl"||act==="dlj"){const isJ=act==="dlj";const blob=new Blob([isJ?JSON.stringify(S,null,2):window.__txt],{type:isJ?"application/json":"text/plain"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(isJ?"readiness-answers":"readiness-report")+(isJ?".json":".txt");document.body.appendChild(a);a.click();a.remove()}
+});
+document.addEventListener("input",e=>{const t=e.target;if(t.dataset.act!=="inp")return;const [o,k]=getp(t.dataset.path);o[k]=t.value;clearTimeout(saveT);saveT=setTimeout(save,300);refreshMeta()});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset.act!=="chk")return;const [o,k]=getp(t.dataset.path);o[k]=t.checked;save();if(t.id==="roi-skip"){$("#moneyBody").hidden=t.checked}refreshMeta()});
+$("#btnReset").addEventListener("click",()=>{$("#resetBox").hidden=false});
+$("#resetNo").addEventListener("click",()=>{$("#resetBox").hidden=true});
+$("#resetYes").addEventListener("click",()=>{S=blank();save();$("#resetBox").hidden=true;renderStep();toast("Answers cleared")});
+/* test hook */
+window.PRC={evaluate:o=>evaluate(Object.assign(blank(),o)),plan,roadmap,blank,GATES,ORG,TECH,CRIT,RISKS,state:()=>S,setState:o=>{S=Object.assign(blank(),o);renderStep()}};
+load();renderStep();
+</script>
+
+</body></html>
